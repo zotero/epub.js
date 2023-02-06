@@ -2,6 +2,10 @@ import { PackagingManifestObject } from "./packaging";
 import Archive from "./archive";
 
 export default class Resources {
+  urls: string[];
+
+  replacementUrls: string[];
+
   constructor(manifest: PackagingManifestObject, options: {
     replacements?: string,
     archive?: Archive,
@@ -17,7 +21,7 @@ export default class Resources {
 
   relativeTo(absolute: boolean, resolver?: Function): Array<string>;
 
-  get(path: string): string;
+  get(path: string): Promise<string> | undefined;
 
   substitute(content: string, url?: string): string;
 

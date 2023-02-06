@@ -4,7 +4,6 @@ import {
   PackagingSpineItem,
   PackagingObject
 } from "./packaging";
-import Rendition, { RenditionOptions } from "./rendition";
 import Section, { SpineItem } from "./section";
 import Archive from "./archive";
 import Navigation from "./navigation";
@@ -16,7 +15,6 @@ import Path from "./utils/path";
 import Resources from "./resources";
 import Container from "./container";
 import Packaging from "./packaging";
-import Store from "./store";
 
 export interface BookOptions {
   requestMethod?: (url: string, type: string, withCredentials: object, headers: object) => Promise<object>;
@@ -25,8 +23,7 @@ export interface BookOptions {
   encoding?: string,
   replacements?: string,
   canonical?: (path: string) => string,
-  openAs?: string,
-  store?: string
+  openAs?: string
 }
 
 export default class Book {
@@ -57,10 +54,8 @@ export default class Book {
     archived: boolean;
     archive: Archive;
     resources: Resources;
-    rendition: Rendition
     container: Container;
     packaging: Packaging;
-    storage: Store;
 
 
     canonical(path: string): string;
@@ -90,9 +85,6 @@ export default class Book {
 
     openPackaging(url: string): Promise<Book>;
 
-    renderTo(element: Element, options?: RenditionOptions): Rendition;
-    renderTo(element: string, options?: RenditionOptions): Rendition;
-
     private replacements(): Promise<void>;
 
     resolve(path: string, absolute?: boolean): string;
@@ -105,8 +97,6 @@ export default class Book {
     setRequestHeaders(headers: object): void;
 
     unarchive(input: BinaryType, encoding?: string): Promise<Archive>;
-
-    store(name: string): Store;
 
     unpack(opf: XMLDocument): Promise<Book>;
 

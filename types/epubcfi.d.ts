@@ -44,7 +44,7 @@ export default class EpubCFI {
 
     filter(anchor: Element, ignoreClass?: string): Element | false;
 
-    toRange(_doc?: Document, ignoreClass?: string): Range;
+    toRange(_doc?: Document, ignoreClass?: string, root?: ParentNode): Range;
 
     toString(): string;
 

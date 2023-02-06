@@ -450,7 +450,10 @@ class EpubCFI {
 		var step;
 
 		while(currentNode && currentNode.parentNode &&
-					currentNode.parentNode.nodeType != DOCUMENT_NODE) {
+					currentNode.parentNode.nodeType != Node.DOCUMENT_NODE &&
+					currentNode.parentNode.nodeType != Node.DOCUMENT_FRAGMENT_NODE &&
+					!(currentNode.parentNode.nodeType == Node.ELEMENT_NODE
+						&& currentNode.parentNode.classList.contains("cfi-stop"))) {
 
 			if (ignoreClass) {
 				step = this.filteredStep(currentNode, ignoreClass);
@@ -471,7 +474,7 @@ class EpubCFI {
 			segment.terminal.offset = offset;
 
 			// Make sure we are getting to a textNode if there is an offset
-			if(segment.steps[segment.steps.length-1].type != "text") {
+			if(!segment.steps.length || segment.steps[segment.steps.length-1].type != "text") {
 				segment.steps.push({
 					"type" : "text",
 					"index" : 0
@@ -768,8 +771,11 @@ class EpubCFI {
 		return map[index];
 	}
 
-	stepsToXpath(steps) {
-		var xpath = [".", "*"];
+	stepsToXpath(steps, rootIsFragment = false) {
+		var xpath = ["."];
+		if (!rootIsFragment) {
+			xpath.push("*");
+		}
 
 		steps.forEach(function(step){
 			var position = step.index + 1;
@@ -834,9 +840,10 @@ class EpubCFI {
 			});
 	}
 
-	walkToNode(steps, _doc, ignoreClass) {
+	walkToNode(steps, _doc, ignoreClass, root) {
 		var doc = _doc || document;
-		var container = doc.documentElement;
+		var container = root || doc.documentElement;
+		root = root || doc;
 		var children;
 		var step;
 		var len = steps.length;
@@ -849,7 +856,7 @@ class EpubCFI {
 				//better to get a container using id as some times step.index may not be correct
 				//For ex.https://github.com/futurepress/epub.js/issues/561
 				if(step.id) {
-					container = doc.getElementById(step.id);
+					container = root.getRootNode({ composed: true }).getElementById(step.id);
 				}
 				else {
 					children = container.children || findChildren(container);
@@ -870,25 +877,38 @@ class EpubCFI {
 		return container;
 	}
 
-	findNode(steps, _doc, ignoreClass) {
+	findNode(steps, _doc, ignoreClass, root) {
 		var doc = _doc || document;
+		root = root || doc;
 		var container;
 		var xpath;
 
 		if(!ignoreClass && typeof doc.evaluate != "undefined") {
-			xpath = this.stepsToXpath(steps);
-			container = doc.evaluate(xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			if (root.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+				xpath = this.stepsToXpath(steps, true);
+				for (let rootChild of root.childNodes) {
+					container = doc.evaluate(xpath, rootChild, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+					if (container) {
+						break;
+					}
+				}
+			}
+			else {
+				xpath = this.stepsToXpath(steps);
+				container = doc.evaluate(xpath, root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			}
 		} else if(ignoreClass) {
-			container = this.walkToNode(steps, doc, ignoreClass);
+			container = this.walkToNode(steps, doc, ignoreClass, root);
 		} else {
-			container = this.walkToNode(steps, doc);
+			container = this.walkToNode(steps, doc, root);
 		}
 
 		return container;
 	}
 
-	fixMiss(steps, offset, _doc, ignoreClass) {
-		var container = this.findNode(steps.slice(0,-1), _doc, ignoreClass);
+	fixMiss(steps, offset, _doc, ignoreClass, root) {
+		root = root || _doc;
+		var container = this.findNode(steps.slice(0,-1), _doc, ignoreClass, root);
 		var children = container.childNodes;
 		var map = this.normalizedMap(children, TEXT_NODE, ignoreClass);
 		var child;
@@ -925,15 +945,17 @@ class EpubCFI {
 	 * Creates a DOM range representing a CFI
 	 * @param {document} _doc document referenced in the base
 	 * @param {string} [ignoreClass]
+	 * @param {ParentNode} [root]
 	 * @return {Range}
 	 */
-	toRange(_doc, ignoreClass) {
+	toRange(_doc, ignoreClass, root) {
 		var doc = _doc || document;
+		root = root || doc;
 		var range;
 		var start, end, startContainer, endContainer;
 		var cfi = this;
 		var startSteps, endSteps;
-		var needsIgnoring = ignoreClass ? (doc.querySelector("." + ignoreClass) != null) : false;
+		var needsIgnoring = ignoreClass ? (root.querySelector("." + ignoreClass) != null) : false;
 		var missed;
 
 		if (typeof(doc.createRange) !== "undefined") {
@@ -945,14 +967,14 @@ class EpubCFI {
 		if (cfi.range) {
 			start = cfi.start;
 			startSteps = cfi.path.steps.concat(start.steps);
-			startContainer = this.findNode(startSteps, doc, needsIgnoring ? ignoreClass : null);
+			startContainer = this.findNode(startSteps, doc, needsIgnoring ? ignoreClass : null, root);
 			end = cfi.end;
 			endSteps = cfi.path.steps.concat(end.steps);
-			endContainer = this.findNode(endSteps, doc, needsIgnoring ? ignoreClass : null);
+			endContainer = this.findNode(endSteps, doc, needsIgnoring ? ignoreClass : null, root);
 		} else {
 			start = cfi.path;
 			startSteps = cfi.path.steps;
-			startContainer = this.findNode(cfi.path.steps, doc, needsIgnoring ? ignoreClass : null);
+			startContainer = this.findNode(cfi.path.steps, doc, needsIgnoring ? ignoreClass : null, root);
 		}
 
 		if(startContainer) {
@@ -965,7 +987,7 @@ class EpubCFI {
 				}
 
 			} catch (e) {
-				missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
+				missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root);
 				range.setStart(missed.container, missed.offset);
 			}
 		} else {
@@ -984,7 +1006,7 @@ class EpubCFI {
 				}
 
 			} catch (e) {
-				missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
+				missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root);
 				range.setEnd(missed.container, missed.offset);
 			}
 		}

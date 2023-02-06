@@ -38,8 +38,7 @@ module.exports = {
 		minimize: MINIMIZE
 	},
 	externals: {
-		"jszip/dist/jszip": "JSZip",
-		"xmldom": "xmldom"
+		"jszip/dist/jszip": "JSZip"
 	},
 	plugins: [],
 	resolve: {
@@ -67,8 +66,6 @@ module.exports = {
 					options: {
 						presets: [["@babel/preset-env", {
 							targets: LEGACY ? "defaults" : "last 2 Chrome versions, last 2 Safari versions, last 2 ChromeAndroid versions, last 2 iOS versions, last 2 Firefox versions, last 2 Edge versions",
-							corejs: 3,
-							useBuiltIns: "usage",
 							bugfixes: true,
 							modules: false
 						}]]

@@ -37,21 +37,6 @@ export const EVENTS = {
     HIDDEN : "hidden",
     MARK_CLICKED : "markClicked"
   },
-  RENDITION : {
-    STARTED : "started",
-    ATTACHED : "attached",
-    DISPLAYED : "displayed",
-    DISPLAY_ERROR : "displayerror",
-    RENDERED : "rendered",
-    REMOVED : "removed",
-    RESIZED : "resized",
-    ORIENTATION_CHANGE : "orientationchange",
-    LOCATION_CHANGED : "locationChanged",
-    RELOCATED : "relocated",
-    MARK_CLICKED : "markClicked",
-    SELECTED : "selected",
-    LAYOUT: "layout"
-  },
   LAYOUT : {
     UPDATED : "updated"
   },

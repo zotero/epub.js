@@ -1,0 +1,11 @@
+root = true
+
+[*]
+indent_style = tab
+
+[*.d.ts]
+indent_style = space
+indent_size = 2
+
+[.eslintrc.js]
+indent_style = space

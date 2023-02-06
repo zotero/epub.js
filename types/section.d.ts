@@ -44,11 +44,13 @@ export default class Section {
 
   hooks: HooksObject;
 
-  load(_request?: Function): Document;
+  load(_request?: Function): Promise<Document>;
 
-  render(_request?: Function): string;
+  render(_request?: Function): Promise<string>;
 
   find(_query: string): Array<Element>;
+
+  search(query: string, maxSeqEle?: number): { cfi: string, excerpt: string }[];
 
   reconcileLayoutSettings(globalLayout: GlobalLayout): LayoutSettings;
 

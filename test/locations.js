@@ -15,17 +15,6 @@ describe('Locations', function() {
 			assert.equal(result.length, 15);
 
 		});
-
-		it('parse locations from xmldom', function() {
-			var doc = core.parse(chapter, "application/xhtml+xml", true);
-			var contents = doc.documentElement;
-
-			var locations = new Locations();
-			var result = locations.parse(contents, "/6/4[chap01ref]", 100);
-			assert.equal(result.length, 15);
-
-		});
-
 	});
 
 });

@@ -10,9 +10,28 @@ module.exports = {
         "JSZip": true
     },
     "extends": "eslint:recommended",
+    "parser": "espree",
     "parserOptions": {
         "sourceType": "module"
     },
+    "overrides": [
+        {
+            "files": ["*.{ts,tsx}"],
+            "parser": "@typescript-eslint/parser",
+            "plugins": ["@typescript-eslint"],
+            "extends": ["plugin:@typescript-eslint/recommended"],
+            "rules": {
+                "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/ban-ts-comment": "off",
+                "no-unused-vars": "off",
+                "@typescript-eslint/no-unused-vars": ["error", {
+                    "argsIgnorePattern": "^_",
+                    "varsIgnorePattern": "^_"
+                }],
+                "indent": ["error", 2]
+            }
+        }
+    ],
     "rules": {
         "indent": [
             "error",

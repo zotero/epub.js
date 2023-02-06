@@ -3,19 +3,21 @@ import Section from "./section";
 import EpubCFI from "./epubcfi";
 
 export default class Locations {
+  total: number;
+  
   constructor(spine: Spine, request?: Function, pause?: number);
 
   generate(chars: number): Promise<Array<string>>;
 
   process(section: Section): Promise<Array<string>>;
 
-  locationFromCfi(cfi: string | EpubCFI): Location;
+  locationFromCfi(cfi: string | EpubCFI): number;
 
   percentageFromCfi(cfi: string | EpubCFI): number;
 
   percentageFromLocation(loc: number): number;
 
-  cfiFromLocation(loc: number): string;
+  cfiFromLocation(loc: number): string | -1;
 
   cfiFromPercentage(percentage: number): string;
 
@@ -23,8 +25,9 @@ export default class Locations {
 
   save(): string;
 
-  currentLocation(): Location;
-  currentLocation(curr: string | number): void;
+  get currentLocation(): number;
+  
+  set currentLocation(curr: string | number);
 
   length(): number;
 

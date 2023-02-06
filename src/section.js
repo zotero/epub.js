@@ -4,7 +4,6 @@ import Hook from "./utils/hook";
 import { sprint } from "./utils/core";
 import { replaceBase } from "./utils/replacements";
 import Request from "./utils/request";
-import { DOMParser as XMLDOMSerializer } from "@xmldom/xmldom";
 
 /**
  * Represents a Section of the Book
@@ -93,15 +92,7 @@ class Section {
 
 		this.load(_request).
 			then(function(contents){
-				var userAgent = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
-				var isIE = userAgent.indexOf('Trident') >= 0;
-				var Serializer;
-				if (typeof XMLSerializer === "undefined" || isIE) {
-					Serializer = XMLDOMSerializer;
-				} else {
-					Serializer = XMLSerializer;
-				}
-				var serializer = new Serializer();
+				var serializer = new XMLSerializer();
 				this.output = serializer.serializeToString(contents);
 				return this.output;
 			}.bind(this)).

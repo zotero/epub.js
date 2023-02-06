@@ -1,13 +1,8 @@
 import Book from "./book";
-import Rendition from "./rendition";
 import CFI from "./epubcfi";
 import Contents from "./contents";
 import * as utils from "./utils/core";
 import { EPUBJS_VERSION } from "./utils/constants";
-
-import IframeView from "./managers/views/iframe";
-import DefaultViewManager from "./managers/default";
-import ContinuousViewManager from "./managers/continuous";
 
 /**
  * Creates a new Book
@@ -27,7 +22,6 @@ if (typeof(global) !== "undefined") {
 }
 
 ePub.Book = Book;
-ePub.Rendition = Rendition;
 ePub.Contents = Contents;
 ePub.CFI = CFI;
 ePub.utils = utils;

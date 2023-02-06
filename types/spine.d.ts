@@ -3,6 +3,10 @@ import Section from "./section";
 import Hook from "./utils/hook";
 
 export default class Spine {
+  length: number;
+	
+  spineItems: Section[];
+	
   constructor();
 
   hooks: {

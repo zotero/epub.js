@@ -2170,7 +2170,6 @@ Parse xml (or html) markup
 
 -   `markup` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `mime` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `forceXMLDom` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** force using xmlDom to parse instead of native parser
 
 Returns **[document](https://developer.mozilla.org/en-US/docs/Web/JavaScript)** document
 
