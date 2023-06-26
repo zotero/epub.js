@@ -46,7 +46,7 @@ export default class EpubCFI {
 
     toRange(_doc?: Document, ignoreClass?: string, root?: ParentNode): Range;
 
-    toString(): string;
+    toString(excludeAssertions?: boolean): string;
 
     private filteredStep(node: Node, ignoreClass?: string): any;
 
@@ -66,7 +66,7 @@ export default class EpubCFI {
 
     private getRange(cfiStr: string): string;
 
-    private joinSteps(steps: Array<EpubCFIStep>): Array<EpubCFIStep>;
+    private joinSteps(steps: Array<EpubCFIStep>, excludeAssertions?: boolean): Array<EpubCFIStep>;
 
     private normalizedMap(children: Array<Node>, nodeType: number, ignoreClass?: string): object;
 
@@ -82,7 +82,7 @@ export default class EpubCFI {
 
     private position(anchor: Node): number;
 
-    private segmentString(segment: EpubCFISegment): string;
+    private segmentString(segment: EpubCFISegment, excludeAssertions?: boolean): string;
 
     private step(node: Node): EpubCFIStep;
 

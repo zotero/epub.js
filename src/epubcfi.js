@@ -259,7 +259,7 @@ class EpubCFI {
 		return splitStr[1] || "";
 	}
 
-	joinSteps(steps) {
+	joinSteps(steps, excludeAssertions) {
 		if(!steps) {
 			return "";
 		}
@@ -275,7 +275,7 @@ class EpubCFI {
 				segment += 1 + (2 * part.index); // TODO: double check that this is odd
 			}
 
-			if(part.id) {
+			if(!excludeAssertions && part.id) {
 				segment += "[" + part.id + "]";
 			}
 
@@ -285,16 +285,16 @@ class EpubCFI {
 
 	}
 
-	segmentString(segment) {
+	segmentString(segment, excludeAssertions) {
 		var segmentString = "/";
 
-		segmentString += this.joinSteps(segment.steps);
+		segmentString += this.joinSteps(segment.steps, excludeAssertions);
 
 		if(segment.terminal && segment.terminal.offset != null){
 			segmentString += ":" + segment.terminal.offset;
 		}
 
-		if(segment.terminal && segment.terminal.assertion != null){
+		if(!excludeAssertions && segment.terminal && segment.terminal.assertion != null){
 			segmentString += "[" + segment.terminal.assertion + "]";
 		}
 
@@ -303,25 +303,26 @@ class EpubCFI {
 
 	/**
 	 * Convert CFI to a epubcfi(...) string
+	 * @param {boolean} [excludeAssertions] Exclude bracketed assertions from the generated string
 	 * @returns {string} epubcfi
 	 */
-	toString() {
+	toString(excludeAssertions) {
 		var cfiString = "epubcfi(";
 
-		cfiString += this.segmentString(this.base);
+		cfiString += this.segmentString(this.base, excludeAssertions);
 
 		cfiString += "!";
-		cfiString += this.segmentString(this.path);
+		cfiString += this.segmentString(this.path, excludeAssertions);
 
 		// Add Range, if present
 		if(this.range && this.start) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.start);
+			cfiString += this.segmentString(this.start, excludeAssertions);
 		}
 
 		if(this.range && this.end) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.end);
+			cfiString += this.segmentString(this.end, excludeAssertions);
 		}
 
 		cfiString += ")";
