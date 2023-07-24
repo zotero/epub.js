@@ -289,18 +289,18 @@ class Resources {
 	/**
 	 * Substitute urls in content, with replacements,
 	 * relative to a url if provided
-	 * @param  {string} content
+	 * @param  {Document} document
 	 * @param  {string} [url]   url to resolve to
 	 * @return {string}         content with urls substituted
 	 */
-	substitute(content, url) {
+	substitute(document, url) {
 		var relUrls;
 		if (url) {
 			relUrls = this.relativeTo(url);
 		} else {
 			relUrls = this.urls;
 		}
-		return substitute(content, relUrls, this.replacementUrls);
+		return substitute(document, relUrls, this.replacementUrls);
 	}
 
 	destroy() {

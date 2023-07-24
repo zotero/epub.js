@@ -594,8 +594,8 @@ class Book {
 	 * @return {Promise} completed loading urls
 	 */
 	replacements() {
-		this.spine.hooks.serialize.register((output, section) => {
-			section.output = this.resources.substitute(output, section.url);
+		this.spine.hooks.content.register((document, section) => {
+			this.resources.substitute(document, section.url);
 		});
 
 		return this.resources.replacements().

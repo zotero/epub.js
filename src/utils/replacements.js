@@ -125,14 +125,29 @@ export function replaceLinks(contents, fn) {
 
 }
 
-export function substitute(content, urls, replacements) {
-	urls.forEach(function(url, i){
-		if (url && replacements[i]) {
-			// Account for special characters in the file name.
-			// See https://stackoverflow.com/a/6318729.
-			url = url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			content = content.replace(new RegExp(url, "g"), replacements[i]);
+export function substitute(textOrDocument, urls, replacements) {
+	if (typeof textOrDocument === "string") {
+		urls.forEach((url, i) => {
+			if (url && replacements[i]) {
+				// Account for special characters in the file name.
+				// See https://stackoverflow.com/a/6318729.
+				url = url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				textOrDocument = textOrDocument.replace(new RegExp(url, "g"), replacements[i]);
+			}
+		});
+	} else {
+		for (let [i, url] of urls.entries()) {
+			if (!url || !replacements[i]) {
+				continue;
+			}
+			url = url.replace(/"/g, "\\\"");
+			for (let elem of textOrDocument.querySelectorAll(`[*|src="${url}"]`)) {
+				elem.setAttribute("src", replacements[i]);
+			}
+			for (let elem of textOrDocument.querySelectorAll(`[*|href="${url}"]`)) {
+				elem.setAttribute("href", replacements[i]);
+			}
 		}
-	});
-	return content;
+	}
+	return textOrDocument;
 }
