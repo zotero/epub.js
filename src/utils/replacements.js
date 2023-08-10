@@ -136,16 +136,24 @@ export function substitute(textOrDocument, urls, replacements) {
 			}
 		});
 	} else {
+		let map = new Map();
 		for (let [i, url] of urls.entries()) {
-			if (!url || !replacements[i]) {
-				continue;
+			if (url && replacements[i]) {
+				map.set(url, replacements[i]);
 			}
-			url = url.replace(/"/g, "\\\"");
-			for (let elem of textOrDocument.querySelectorAll(`[*|src="${url}"]`)) {
-				elem.setAttribute("src", replacements[i]);
+		}
+		let nodeIter = textOrDocument.createNodeIterator(textOrDocument, NodeFilter.SHOW_ELEMENT, (node) => {
+			return node.hasAttribute("src") || node.hasAttribute("href") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+		});
+		let node;
+		while ((node = nodeIter.nextNode())) {
+			let src = node.getAttribute("src");
+			let href = node.getAttribute("href");
+			if (src && map.has(src)) {
+				node.setAttribute("src", map.get(src));
 			}
-			for (let elem of textOrDocument.querySelectorAll(`[*|href="${url}"]`)) {
-				elem.setAttribute("href", replacements[i]);
+			if (href && map.has(href)) {
+				node.setAttribute("href", map.get(href));
 			}
 		}
 	}
