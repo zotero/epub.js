@@ -884,11 +884,12 @@ class EpubCFI {
 		var container;
 		var xpath;
 
-		if(!ignoreClass && typeof doc.evaluate != "undefined") {
+		if(!ignoreClass && typeof XPathEvaluator != "undefined") {
+			let evaluator = new XPathEvaluator();
 			if (root.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
 				xpath = this.stepsToXpath(steps, true);
 				for (let rootChild of root.childNodes) {
-					container = doc.evaluate(xpath, rootChild, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+					container = evaluator.evaluate(xpath, rootChild, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 					if (container) {
 						break;
 					}
@@ -896,7 +897,7 @@ class EpubCFI {
 			}
 			else {
 				xpath = this.stepsToXpath(steps);
-				container = doc.evaluate(xpath, root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+				container = evaluator.evaluate(xpath, root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 			}
 		} else if(ignoreClass) {
 			container = this.walkToNode(steps, doc, ignoreClass, root);
