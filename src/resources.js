@@ -258,11 +258,13 @@ class Resources {
 	relativeTo(absolute, resolver){
 		resolver = resolver || this.settings.resolver;
 
+		let absoluteResolved = new Path(absolute);
+
 		// Get Urls relative to current sections
 		return this.urls.
 			map(function(href) {
 				var resolved = resolver(href);
-				var relative = new Path(absolute).relative(resolved);
+				var relative = absoluteResolved.relative(resolved);
 				return relative;
 			}.bind(this));
 	}
