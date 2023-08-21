@@ -98,7 +98,7 @@ export function replaceLinks(contents, fn) {
 		}else{
 			var linkUrl;
 			try {
-				linkUrl = new Url(href, location);	
+				linkUrl = new Url(href, location);
 			} catch(error) {
 				// NOOP
 			}
@@ -143,17 +143,24 @@ export function substitute(textOrDocument, urls, replacements) {
 			}
 		}
 		let nodeIter = textOrDocument.createNodeIterator(textOrDocument, NodeFilter.SHOW_ELEMENT, (node) => {
-			return node.hasAttribute("src") || node.hasAttribute("href") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+			return node.hasAttribute("src") || node.hasAttribute("href")
+					|| node.hasAttributeNS("http://www.w3.org/1999/xlink", "href")
+				? NodeFilter.FILTER_ACCEPT
+				: NodeFilter.FILTER_SKIP;
 		});
 		let node;
 		while ((node = nodeIter.nextNode())) {
 			let src = node.getAttribute("src");
 			let href = node.getAttribute("href");
+			let xlinkHref = node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
 			if (src && map.has(src)) {
 				node.setAttribute("src", map.get(src));
 			}
 			if (href && map.has(href)) {
 				node.setAttribute("href", map.get(href));
+			}
+			if (xlinkHref && map.has(xlinkHref)) {
+				node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
 			}
 		}
 	}
