@@ -1,4 +1,4 @@
-import {substitute} from "./utils/replacements";
+import {substituteInText, substituteInDocument} from "./utils/replacements";
 import {createBase64Url, createBlobUrl, blob2base64} from "./utils/core";
 import Url from "./utils/url";
 import mime from "./utils/mime";
@@ -44,6 +44,7 @@ class Resources {
 		this.css = [];
 
 		this.urls = [];
+		this.absoluteUrls = [];
 		this.cssUrls = [];
 
 		this.split();
@@ -94,6 +95,8 @@ class Resources {
 			map(function(item) {
 				return item.href;
 			}.bind(this));
+
+		this.absoluteUrls = this.urls.map(url => this.settings.resolver(url));
 
 		// Css Urls
 		this.cssUrls = this.css.map(function(item) {
@@ -230,7 +233,7 @@ class Resources {
 
 		return textResponse.then( (text) => {
 			// Replacements in the css text
-			text = substitute(text, relUrls, this.replacementUrls);
+			text = substituteInText(text, relUrls, this.replacementUrls);
 
 			// Get the new url
 			if (this.settings.replacements === "base64") {
@@ -296,13 +299,8 @@ class Resources {
 	 * @return {string}         content with urls substituted
 	 */
 	substitute(document, url) {
-		var relUrls;
-		if (url) {
-			relUrls = this.relativeTo(url);
-		} else {
-			relUrls = this.urls;
-		}
-		return substitute(document, relUrls, this.replacementUrls);
+		let relativeTo = new Path(url);
+		return substituteInDocument(document, this.absoluteUrls, this.replacementUrls, relativeTo);
 	}
 
 	destroy() {

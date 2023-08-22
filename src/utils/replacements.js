@@ -125,44 +125,48 @@ export function replaceLinks(contents, fn) {
 
 }
 
-export function substitute(textOrDocument, urls, replacements) {
-	if (typeof textOrDocument === "string") {
-		urls.forEach((url, i) => {
-			if (url && replacements[i]) {
-				// Account for special characters in the file name.
-				// See https://stackoverflow.com/a/6318729.
-				url = url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				textOrDocument = textOrDocument.replace(new RegExp(url, "g"), replacements[i]);
-			}
-		});
-	} else {
-		let map = new Map();
-		for (let [i, url] of urls.entries()) {
-			if (url && replacements[i]) {
-				map.set(url, replacements[i]);
-			}
+export function substituteInText(text, urls, replacements) {
+	urls.forEach((url, i) => {
+		if (url && replacements[i]) {
+			// Account for special characters in the file name.
+			// See https://stackoverflow.com/a/6318729.
+			url = url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+			text = text.replace(new RegExp(url, "g"), replacements[i]);
 		}
-		let nodeIter = textOrDocument.createNodeIterator(textOrDocument, NodeFilter.SHOW_ELEMENT, (node) => {
-			return node.hasAttribute("src") || node.hasAttribute("href")
-					|| node.hasAttributeNS("http://www.w3.org/1999/xlink", "href")
-				? NodeFilter.FILTER_ACCEPT
-				: NodeFilter.FILTER_SKIP;
-		});
-		let node;
-		while ((node = nodeIter.nextNode())) {
-			let src = node.getAttribute("src");
-			let href = node.getAttribute("href");
-			let xlinkHref = node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-			if (src && map.has(src)) {
-				node.setAttribute("src", map.get(src));
-			}
-			if (href && map.has(href)) {
-				node.setAttribute("href", map.get(href));
-			}
-			if (xlinkHref && map.has(xlinkHref)) {
-				node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
-			}
+	});
+	return text;
+}
+
+export function substituteInDocument(doc, urls, replacements, relativeTo) {
+	let map = new Map();
+	for (let [i, url] of urls.entries()) {
+		if (url && replacements[i]) {
+			map.set(url, replacements[i]);
 		}
 	}
-	return textOrDocument;
+	let nodeIter = doc.createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, (node) => {
+		return node.hasAttribute("src") || node.hasAttribute("href")
+		|| node.hasAttributeNS("http://www.w3.org/1999/xlink", "href")
+			? NodeFilter.FILTER_ACCEPT
+			: NodeFilter.FILTER_SKIP;
+	});
+	let node;
+	while ((node = nodeIter.nextNode())) {
+		let src = node.getAttribute("src");
+		src = src && relativeTo.resolve(src);
+		let href = node.getAttribute("href");
+		href = href && relativeTo.resolve(href);
+		let xlinkHref = node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+		xlinkHref = xlinkHref && relativeTo.resolve(xlinkHref);
+		if (src && map.has(src)) {
+			node.setAttribute("src", map.get(src));
+		}
+		if (href && map.has(href)) {
+			node.setAttribute("href", map.get(href));
+		}
+		if (xlinkHref && map.has(xlinkHref)) {
+			node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
+		}
+	}
+	return doc;
 }
