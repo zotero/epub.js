@@ -78,6 +78,13 @@ class Archive {
 
 		if (response) {
 			response.then(function (r) {
+				// Even if the file had the extension ".html", it could still be XHTML -- see if it is
+				if ((type === "html" || type === "htm")
+						&& r
+						&& (r.startsWith("<?xml") || r.substring(0, 256).includes("http://www.w3.org/1999/xhtml"))) {
+					type = "xhtml";
+				}
+				
 				let result = this.handleResponse(r, type);
 				deferred.resolve(result);
 			}.bind(this));
