@@ -62,6 +62,7 @@ class Spine {
 				item.href = manifestItem.href;
 				item.url = resolver(item.href, true);
 				item.canonical = canonical(item.href);
+				item.type = manifestItem.type;
 
 				if(manifestItem.properties.length){
 					item.properties.push.apply(item.properties, manifestItem.properties);

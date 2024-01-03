@@ -21,6 +21,7 @@ class Section {
 		this.href = item.href;
 		this.url = item.url;
 		this.canonical = item.canonical;
+		this.type = item.type;
 		this.next = item.next;
 		this.prev = item.prev;
 
@@ -52,7 +53,7 @@ class Section {
 		if(this.contents) {
 			loading.resolve(this.contents);
 		} else {
-			request(this.url)
+			request(this.url, this.type.includes("xml") ? "xhtml" : "html")
 				.then(function(xml){
 					// var directory = new Url(this.url).directory;
 
