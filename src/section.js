@@ -53,7 +53,17 @@ class Section {
 		if(this.contents) {
 			loading.resolve(this.contents);
 		} else {
-			request(this.url, this.type.includes("xml") ? "xhtml" : "html")
+			let requestType;
+			if (this.type && this.type.includes("xml")) {
+				requestType = "xhtml";
+			}
+			else if (this.type === "text/html") {
+				requestType = "html";
+			}
+			else {
+				requestType = null; // Let request() sniff the URL and hope for the best!
+			}
+			request(this.url, requestType)
 				.then(function(xml){
 					// var directory = new Url(this.url).directory;
 
