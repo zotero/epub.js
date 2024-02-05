@@ -1,4 +1,4 @@
-import {defer, isXml, parse} from "./utils/core";
+import { defer, isXml, parse, removeCommentData } from "./utils/core";
 import request from "./utils/request";
 import mime from "./utils/mime";
 import Path from "./utils/path";
@@ -113,11 +113,16 @@ class Archive {
 			if (r.getElementsByTagName("parsererror").length) {
 				console.warn("XHTML parse error! Retrying as text/html");
 				r = parse(response, "text/html");
+				// The HTML parser accepts comments containing '--' or ending with '--->',
+				// but the XHTML parser doesn't. We'll be safe and empty all comments.
+				removeCommentData(r);
 			}
 		}
 		else
 		if(type == "html" || type == "htm") {
 			r = parse(response, "text/html");
+			// See comment above
+			removeCommentData(r);
 		 } else {
 			 r = response;
 		 }

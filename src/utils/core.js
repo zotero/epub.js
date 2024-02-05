@@ -478,6 +478,18 @@ export function parse(markup, mime) {
 	return doc;
 }
 
+export function removeCommentData(node) {
+	let walker = document.createTreeWalker(node, NodeFilter.SHOW_COMMENT);
+	let comments = [];
+	let cur;
+	while (cur = walker.nextNode()) {
+		comments.push(cur);
+	}
+	for (let comment of comments) {
+		comment.data = '';
+	}
+}
+
 /**
  * querySelector polyfill
  * @param {element} el
