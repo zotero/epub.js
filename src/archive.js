@@ -110,6 +110,10 @@ class Archive {
 		else
 		if(type == "xhtml") {
 			r = parse(response, "application/xhtml+xml");
+			if (r.getElementsByTagName("parsererror").length) {
+				console.warn("XHTML parse error! Retrying as text/html");
+				r = parse(response, "text/html");
+			}
 		}
 		else
 		if(type == "html" || type == "htm") {
