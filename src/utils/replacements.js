@@ -158,14 +158,34 @@ export function substituteInDocument(doc, urls, replacements, relativeTo) {
 		href = href && relativeTo.resolve(href);
 		let xlinkHref = node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
 		xlinkHref = xlinkHref && relativeTo.resolve(xlinkHref);
-		if (src && map.has(src)) {
-			node.setAttribute("src", map.get(src));
+		try {
+			if (src) {
+				if (!map.has(src)) {
+					src = decodeURIComponent(src);
+				}
+				if (map.has(src)) {
+					node.setAttribute("src", map.get(src));
+				}
+			}
+			if (href) {
+				if (!map.has(href)) {
+					href = decodeURIComponent(href);
+				}
+				if (map.has(href)) {
+					node.setAttribute("href", map.get(href));
+				}
+			}
+			if (xlinkHref) {
+				if (!map.has(xlinkHref)) {
+					xlinkHref = decodeURIComponent(xlinkHref);
+				}
+				if (map.has(xlinkHref)) {
+					node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
+				}
+			}
 		}
-		if (href && map.has(href)) {
-			node.setAttribute("href", map.get(href));
-		}
-		if (xlinkHref && map.has(xlinkHref)) {
-			node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
+		catch (e) {
+			console.error(e);
 		}
 	}
 	return doc;
