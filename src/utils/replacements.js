@@ -137,6 +137,8 @@ export function substituteInText(text, urls, replacements) {
 	return text;
 }
 
+const ATTRS = [[null, "src"], [null, "href"], ["http://www.w3.org/1999/xlink", "href"], [null, "data"]];
+
 export function substituteInDocument(doc, urls, replacements, relativeTo) {
 	let map = new Map();
 	for (let [i, url] of urls.entries()) {
@@ -144,44 +146,33 @@ export function substituteInDocument(doc, urls, replacements, relativeTo) {
 			map.set(url, replacements[i]);
 		}
 	}
+	
+	function rewrite(node, ns, attr) {
+		let url = node.getAttribute(attr);
+		if (!url) {
+			return;
+		}
+		url = relativeTo.resolve(url);
+		if (!map.has(url)) {
+			url = decodeURIComponent(url);
+			if (!map.has(url)) {
+				return;
+			}
+		}
+		url = map.get(url);
+		node.setAttributeNS(ns, attr, url);
+	}
+	
 	let nodeIter = doc.createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, (node) => {
-		return node.hasAttribute("src") || node.hasAttribute("href")
-		|| node.hasAttributeNS("http://www.w3.org/1999/xlink", "href")
+		return ATTRS.some(([ns, attr]) => node.hasAttributeNS(ns, attr))
 			? NodeFilter.FILTER_ACCEPT
 			: NodeFilter.FILTER_SKIP;
 	});
 	let node;
 	while ((node = nodeIter.nextNode())) {
-		let src = node.getAttribute("src");
-		src = src && relativeTo.resolve(src);
-		let href = node.getAttribute("href");
-		href = href && relativeTo.resolve(href);
-		let xlinkHref = node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-		xlinkHref = xlinkHref && relativeTo.resolve(xlinkHref);
 		try {
-			if (src) {
-				if (!map.has(src)) {
-					src = decodeURIComponent(src);
-				}
-				if (map.has(src)) {
-					node.setAttribute("src", map.get(src));
-				}
-			}
-			if (href) {
-				if (!map.has(href)) {
-					href = decodeURIComponent(href);
-				}
-				if (map.has(href)) {
-					node.setAttribute("href", map.get(href));
-				}
-			}
-			if (xlinkHref) {
-				if (!map.has(xlinkHref)) {
-					xlinkHref = decodeURIComponent(xlinkHref);
-				}
-				if (map.has(xlinkHref)) {
-					node.setAttributeNS("http://www.w3.org/1999/xlink", "href", map.get(xlinkHref));
-				}
+			for (let [ns, attr] of ATTRS) {
+				rewrite(node, ns, attr);
 			}
 		}
 		catch (e) {
