@@ -148,7 +148,7 @@ export function substituteInDocument(doc, urls, replacements, relativeTo) {
 	}
 	
 	function rewrite(node, ns, attr) {
-		let url = node.getAttribute(attr);
+		let url = node.getAttributeNS(ns, attr);
 		if (!url) {
 			return;
 		}
