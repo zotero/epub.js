@@ -908,7 +908,7 @@ class EpubCFI {
 		return container;
 	}
 
-	fixMiss(steps, offset, _doc, ignoreClass, root) {
+	fixMiss(steps, offset, _doc, ignoreClass, root, calibreCompat) {
 		root = root || _doc;
 		var container = this.findNode(steps.slice(0,-1), _doc, ignoreClass, root);
 		var children = container.childNodes;
@@ -920,7 +920,9 @@ class EpubCFI {
 		for (let childIndex in map) {
 			if (!map.hasOwnProperty(childIndex)) return;
 
-			if(map[childIndex] === lastStepIndex) {
+			// If we're dealing with Calibre CFIs, we might get a text index
+			// when we're expecting an element index. Be tolerant.
+			if(calibreCompat || map[childIndex] === lastStepIndex) {
 				child = children[childIndex];
 				len = child.textContent.length;
 				if(offset > len) {
@@ -948,9 +950,10 @@ class EpubCFI {
 	 * @param {document} _doc document referenced in the base
 	 * @param {string} [ignoreClass]
 	 * @param {ParentNode} [root]
+	 * @param {boolean} [options.calibreCompat]
 	 * @return {Range}
 	 */
-	toRange(_doc, ignoreClass, root) {
+	toRange(_doc, ignoreClass, root, options) {
 		var doc = _doc || document;
 		root = root || doc;
 		var range;
@@ -989,7 +992,7 @@ class EpubCFI {
 				}
 
 			} catch (e) {
-				missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root);
+				missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root, options && options.calibreCompat);
 				range.setStart(missed.container, missed.offset);
 			}
 		} else {
@@ -1008,7 +1011,7 @@ class EpubCFI {
 				}
 
 			} catch (e) {
-				missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root);
+				missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null, root, options && options.calibreCompat);
 				range.setEnd(missed.container, missed.offset);
 			}
 		}
