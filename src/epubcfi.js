@@ -475,7 +475,7 @@ class EpubCFI {
 			segment.terminal.offset = offset;
 
 			// Make sure we are getting to a textNode if there is an offset
-			if(!segment.steps.length || segment.steps[segment.steps.length-1].type != "text") {
+			if(node.nodeType === Node.TEXT_NODE && (!segment.steps.length || segment.steps[segment.steps.length-1].type != "text")) {
 				segment.steps.push({
 					"type" : "text",
 					"index" : 0
