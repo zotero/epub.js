@@ -1,6 +1,8 @@
 import JSZip = require('jszip');
 
 export default class Archive {
+  zip: JSZip | null;
+  
   constructor();
 
   open(input: BinaryType, isBase64?: boolean): Promise<JSZip>;
