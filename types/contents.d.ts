@@ -54,10 +54,6 @@ export default class Contents {
 
     locationOf(target: string | EpubCFI, ignoreClass?: string): Promise<{ top: number, left: number }>;
 
-    map(layout: any): any;
-
-    mapPage(cfiBase: string, layout: object, start: number, end: number, dev: boolean): any;
-
     overflow(overflow: string): string;
 
     overflowX(overflow: string): string;

@@ -26,6 +26,7 @@ export interface PackagingMetadataObject {
   viewport: string,
   spread: string,
   direction: string,
+  primary_writing_mode: string,
 }
 
 export interface PackagingSpineItem {

@@ -8,7 +8,6 @@ import Container from "./container";
 import Packaging from "./packaging";
 import Navigation from "./navigation";
 import Resources from "./resources";
-import PageList from "./pagelist";
 import Archive from "./archive";
 import request from "./utils/request";
 import EpubCFI from "./epubcfi";
@@ -83,7 +82,6 @@ class Book {
 			metadata: new defer(),
 			cover: new defer(),
 			navigation: new defer(),
-			pageList: new defer(),
 			resources: new defer(),
 			displayOptions: new defer()
 		};
@@ -94,7 +92,6 @@ class Book {
 			metadata: this.loading.metadata.promise,
 			cover: this.loading.cover.promise,
 			navigation: this.loading.navigation.promise,
-			pageList: this.loading.pageList.promise,
 			resources: this.loading.resources.promise,
 			displayOptions: this.loading.displayOptions.promise
 		};
@@ -133,22 +130,10 @@ class Book {
 		this.spine = new Spine();
 
 		/**
-		 * @member {Locations} locations
-		 * @memberof Book
-		 */
-		this.locations = new Locations(this.spine, this.load.bind(this));
-
-		/**
 		 * @member {Navigation} navigation
 		 * @memberof Book
 		 */
 		this.navigation = undefined;
-
-		/**
-		 * @member {PageList} pagelist
-		 * @memberof Book
-		 */
-		this.pageList = undefined;
 
 		/**
 		 * @member {Url} url
@@ -471,7 +456,6 @@ class Book {
 		this.loading.spine.resolve(this.spine);
 		this.loading.cover.resolve(this.cover);
 		this.loading.resources.resolve(this.resources);
-		this.loading.pageList.resolve(this.pageList);
 
 		this.isOpen = true;
 
@@ -494,7 +478,7 @@ class Book {
 	}
 
 	/**
-	 * Load Navigation and PageList from package
+	 * Load Navigation from package
 	 * @private
 	 * @param {Packaging} packaging
 	 */
@@ -507,10 +491,6 @@ class Book {
 			return new Promise((resolve, reject) => {
 				this.navigation = new Navigation(toc);
 
-				if (packaging.pageList) {
-					this.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
-				}
-
 				resolve(this.navigation);
 			});
 		}
@@ -518,7 +498,6 @@ class Book {
 		if (!navPath) {
 			return new Promise((resolve, reject) => {
 				this.navigation = new Navigation();
-				this.pageList = new PageList();
 
 				resolve(this.navigation);
 			});
@@ -527,7 +506,6 @@ class Book {
 		return this.load(navPath, "xml")
 			.then((xml) => {
 				this.navigation = new Navigation(xml);
-				this.pageList = new PageList(xml);
 				return this.navigation;
 			});
 	}
@@ -648,7 +626,6 @@ class Book {
 
 		this.spine && this.spine.destroy();
 		this.locations && this.locations.destroy();
-		this.pageList && this.pageList.destroy();
 		this.archive && this.archive.destroy();
 		this.resources && this.resources.destroy();
 		this.container && this.container.destroy();
@@ -657,7 +634,6 @@ class Book {
 
 		this.spine = undefined;
 		this.locations = undefined;
-		this.pageList = undefined;
 		this.archive = undefined;
 		this.resources = undefined;
 		this.container = undefined;

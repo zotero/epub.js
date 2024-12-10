@@ -7,7 +7,6 @@ import {
 import Section, { SpineItem } from "./section";
 import Archive from "./archive";
 import Navigation from "./navigation";
-import PageList, {PageListItem} from "./pagelist";
 import Spine from "./spine";
 import Locations from "./locations";
 import Url from "./utils/url";
@@ -40,7 +39,6 @@ export default class Book {
       manifest: Promise<PackagingManifestObject>,
       cover: Promise<string>,
       navigation: Promise<Navigation>,
-      pageList: Promise<PageListItem[]>,
       resources: Promise<string[]>,
     }
     ready: Promise<void>;
@@ -48,7 +46,6 @@ export default class Book {
     spine: Spine;
     locations: Locations;
     navigation: Navigation;
-    pageList: PageList;
     url: Url;
     path: Path;
     archived: boolean;
