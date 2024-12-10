@@ -101,7 +101,9 @@ class Packaging {
 		metadata.viewport = this.getPropertyText(xml, "rendition:viewport");
 		metadata.media_active_class = this.getPropertyText(xml, "media:active-class");
 		metadata.spread = this.getPropertyText(xml, "rendition:spread");
-		// metadata.page_prog_dir = packageXml.querySelector("spine").getAttribute("page-progression-direction");
+		
+		let writingModeMeta = xml.querySelector("meta[name='primary-writing-mode']");
+		metadata.primary_writing_mode = writingModeMeta ? writingModeMeta.getAttribute("content") : "";
 
 		return metadata;
 	}
