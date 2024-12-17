@@ -161,7 +161,14 @@ class Spine {
 
 		// Encode and Decode href lookups
 		// see pr for details: https://github.com/futurepress/epub.js/pull/358
-		this.spineByHref[decodeURI(section.href)] = index;
+		try {
+			this.spineByHref[decodeURIComponent(section.href)] = index;
+			this.spineByHref[decodeURI(section.href)] = index;
+		}
+		catch (e) {
+			// Ignore invalid escape
+		}
+		this.spineByHref[encodeURIComponent(section.href)] = index;
 		this.spineByHref[encodeURI(section.href)] = index;
 		this.spineByHref[section.href] = index;
 

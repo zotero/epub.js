@@ -142,8 +142,15 @@ const ATTRS = [[null, "src"], [null, "href"], ["http://www.w3.org/1999/xlink", "
 export function substituteInDocument(doc, urls, replacements, relativeTo) {
 	let map = new Map();
 	for (let [i, url] of urls.entries()) {
-		if (url && replacements[i]) {
-			map.set(url, replacements[i]);
+		let replacement = replacements[i];
+		if (url && replacement) {
+			try {
+				url = decodeURIComponent(url);
+			}
+			catch (e) {
+				// Ignore
+			}
+			map.set(url, replacement);
 		}
 	}
 	
