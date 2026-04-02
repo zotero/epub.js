@@ -14,6 +14,7 @@ import Path from "./utils/path";
 import Resources from "./resources";
 import Container from "./container";
 import Packaging from "./packaging";
+import DisplayOptions from './displayoptions';
 
 export interface BookOptions {
   requestMethod?: (url: string, type: string, withCredentials: object, headers: object) => Promise<object>;
@@ -53,6 +54,7 @@ export default class Book {
     resources: Resources;
     container: Container;
     packaging: Packaging;
+    displayOptions: DisplayOptions;
 
 
     canonical(path: string): string;
