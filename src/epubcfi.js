@@ -878,6 +878,61 @@ class EpubCFI {
 		return container;
 	}
 
+	/**
+	 * Walk steps interpreting a text step per the EPUB CFI spec: its index
+	 * counts the element children before the text (odd CFI numbers address
+	 * the text between elements), not the text node's position in the list
+	 * of text nodes. The two agree only while text and element children
+	 * strictly alternate starting with text; a parent whose first child is
+	 * an element (e.g. a pagebreak anchor span) breaks that, and CFIs from
+	 * spec-compliant generators stop resolving.
+	 * @private
+	 * @param {array} steps
+	 * @param {document} _doc
+	 * @param {node} [root]
+	 * @return {element|null} el
+	 */
+	walkToNodeSpec(steps, _doc, root) {
+		var doc = _doc || document;
+		var container = root || doc.documentElement;
+		var children;
+		var step;
+		var len = steps.length;
+		var i;
+
+		for (i = 0; i < len; i++) {
+			step = steps[i];
+
+			if (step.type === "element") {
+				if (step.id) {
+					container = (root || doc).getRootNode({ composed: true }).getElementById(step.id);
+				}
+				else {
+					children = container.children || findChildren(container);
+					container = children[step.index];
+				}
+			} else if (step.type === "text") {
+				var target = null;
+				var elementsBefore = 0;
+				var nodes = container.childNodes;
+				for (var j = 0; j < nodes.length; j++) {
+					if (nodes[j].nodeType === ELEMENT_NODE) {
+						elementsBefore += 1;
+					} else if (nodes[j].nodeType === TEXT_NODE && elementsBefore === step.index) {
+						target = nodes[j];
+						break;
+					}
+				}
+				container = target;
+			}
+			if (!container) {
+				break;
+			}
+		}
+
+		return container;
+	}
+
 	findNode(steps, _doc, ignoreClass, root) {
 		var doc = _doc || document;
 		root = root || doc;
@@ -903,6 +958,13 @@ class EpubCFI {
 			container = this.walkToNode(steps, doc, ignoreClass, root);
 		} else {
 			container = this.walkToNode(steps, doc, root);
+		}
+
+		if (!container && !ignoreClass) {
+			// The resolution above indexes a text step into the list of text
+			// nodes alone; retry with the spec interpretation (see
+			// walkToNodeSpec) so spec-numbered CFIs resolve too.
+			container = this.walkToNodeSpec(steps, doc, root);
 		}
 
 		return container;
