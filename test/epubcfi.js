@@ -419,4 +419,31 @@ describe('EpubCFI', function() {
 
 	});
 
+
+	describe('#findNode() with spec-numbered text steps', function () {
+		var cfi = new EpubCFI();
+		// A paragraph whose first child is an element (like the pagebreak
+		// anchor spans of printed EPUBs): children are [span, text], so per
+		// the CFI spec the text node is step 3 — the text after the first
+		// element child — although it is the first entry in the list of
+		// text nodes.
+		var contents = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body id="body01"><p id="c01"><span id="pg8"></span>We live in the woods.</p></body></html>';
+		var doc = new DOMParser().parseFromString(contents, "application/xhtml+xml");
+
+		it('finds a text node numbered by its position among all children', function () {
+			var parsed = cfi.parse("epubcfi(/6/2!/4[body01]/2[c01]/3:4)");
+			var found = cfi.findNode(parsed.path.steps, doc);
+			assert.ok(found, "the text after the leading element is found");
+			assert.equal(found.nodeType, 3);
+			assert.equal(found.textContent, "We live in the woods.");
+		});
+
+		it('still resolves text-node-list numbering first', function () {
+			var parsed = cfi.parse("epubcfi(/6/2!/4[body01]/2[c01]/1:4)");
+			var found = cfi.findNode(parsed.path.steps, doc);
+			assert.ok(found);
+			assert.equal(found.textContent, "We live in the woods.");
+		});
+	});
+
 });
